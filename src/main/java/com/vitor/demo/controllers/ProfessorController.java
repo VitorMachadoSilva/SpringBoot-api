@@ -5,7 +5,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.vitor.demo.services.ProfessorService;
+import com.vitor.demo.services.TurmaService;
 import com.vitor.demo.models.Professor;
+import com.vitor.demo.models.Turma;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
@@ -20,6 +22,9 @@ public class ProfessorController {
     @Autowired
     private ProfessorService professorService;
 
+    @Autowired
+    private TurmaService turmaService;
+
     @GetMapping
     public ResponseEntity<List<Professor>> findAll() {
         List<Professor> professors = professorService.findAll();
@@ -30,6 +35,13 @@ public class ProfessorController {
     public ResponseEntity<Professor> findById(@PathVariable Long id) {
         Professor obj = professorService.findById(id);
         return ResponseEntity.ok(obj);
+    }
+
+    // NOVO ENDPOINT: Listar turmas de um professor
+    @GetMapping(value = "/{id}/turmas")
+    public ResponseEntity<List<Turma>> findTurmasByProfessorId(@PathVariable Long id) {
+        List<Turma> turmas = turmaService.findByProfessorId(id);
+        return ResponseEntity.ok(turmas);
     }
 
     @PostMapping

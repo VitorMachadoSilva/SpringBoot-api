@@ -5,7 +5,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.vitor.demo.services.TurmaService;
+import com.vitor.demo.services.NotaService;
+import com.vitor.demo.services.TurmaAlunoService;
 import com.vitor.demo.models.Turma;
+import com.vitor.demo.models.Nota;
+import com.vitor.demo.models.TurmaAluno;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import jakarta.validation.Valid;
@@ -19,10 +23,22 @@ public class TurmaController {
     @Autowired
     private TurmaService turmaService;
 
+    @Autowired
+    private NotaService notaService;
+
+    @Autowired
+    private TurmaAlunoService turmaAlunoService;
+
     @GetMapping
     public ResponseEntity<List<Turma>> findAll() {
         List<Turma> turmas = turmaService.findAll();
         return ResponseEntity.ok(turmas);
+    }
+
+    @GetMapping(value = "/{id}/notas")
+    public ResponseEntity<List<Nota>> findNotasByTurmaId(@PathVariable Long id) {
+        List<Nota> notas = notaService.findByTurmaId(id);
+        return ResponseEntity.ok(notas);
     }
 
     @GetMapping(value = "/{id}")
@@ -41,6 +57,20 @@ public class TurmaController {
     public ResponseEntity<List<Turma>> findByProfessorId(@PathVariable Long professorId) {
         List<Turma> turmas = turmaService.findByProfessorId(professorId);
         return ResponseEntity.ok(turmas);
+    }
+
+    // NOVO ENDPOINT: Listar notas de uma turma
+    // @GetMapping(value = "/{id}/notas")
+    // public ResponseEntity<List<Nota>> findNotasByTurmaId(@PathVariable Long id) {
+    //     List<Nota> notas = notaService.findByTurmaId(id);
+    //     return ResponseEntity.ok(notas);
+    // }
+
+    // NOVO ENDPOINT: Listar alunos de uma turma
+    @GetMapping(value = "/{id}/alunos")
+    public ResponseEntity<List<TurmaAluno>> findAlunosByTurmaId(@PathVariable Long id) {
+        List<TurmaAluno> matriculas = turmaAlunoService.findByTurmaId(id);
+        return ResponseEntity.ok(matriculas);
     }
 
     @PostMapping

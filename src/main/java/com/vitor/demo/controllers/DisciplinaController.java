@@ -5,12 +5,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.vitor.demo.services.DisciplinaService;
+import com.vitor.demo.services.TurmaService;
 import com.vitor.demo.models.Disciplina;
+import com.vitor.demo.models.Turma;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import jakarta.validation.Valid;
 import java.util.List;
-
 
 @RestController
 @RequestMapping(value = "/disciplina")
@@ -19,6 +20,9 @@ public class DisciplinaController {
     
     @Autowired
     private DisciplinaService disciplinaService;
+
+    @Autowired
+    private TurmaService turmaService;
 
     @GetMapping
     public ResponseEntity<List<Disciplina>> findAll() {
@@ -30,6 +34,13 @@ public class DisciplinaController {
     public ResponseEntity<Disciplina> findById(@PathVariable Long id) {
         Disciplina obj = disciplinaService.findById(id);
         return ResponseEntity.ok(obj);
+    }
+
+    // NOVO ENDPOINT: Listar turmas de uma disciplina
+    @GetMapping(value = "/{id}/turmas")
+    public ResponseEntity<List<Turma>> findTurmasByDisciplinaId(@PathVariable Long id) {
+        List<Turma> turmas = turmaService.findByDisciplinaId(id);
+        return ResponseEntity.ok(turmas);
     }
 
     @PostMapping
