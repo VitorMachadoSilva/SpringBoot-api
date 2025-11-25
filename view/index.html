@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Acadêmico - JWT Auth</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand { font-weight: bold; }
+        .card { box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .table-responsive { max-height: 500px; }
+        .loading { text-align: center; padding: 20px; }
+        .error-message { color: #dc3545; background-color: #f8d7da; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .success-message { color: #155724; background-color: #d4edda; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .btn-action { margin: 2px; }
+        .modal-header { background-color: #f8f9fa; }
+        #loginSection { transition: all 0.3s ease; }
+        #mainContent { display: none; }
+        .user-info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    </style>
+</head>
+<body>
+    <!-- Seção de Login (inicialmente visível) -->
+    <div id="loginSection">
+        <div class="container-fluid vh-100 d-flex align-items-center justify-content-center user-info">
+            <div class="row w-100 justify-content-center">
+                <div class="col-md-4 col-sm-8">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h4 class="mb-0">🎓 Sistema Acadêmico</h4>
+                            <p class="mb-0">Faça login para continuar</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Mensagens de Erro -->
+                            <div id="loginError" class="error-message" style="display: none;"></div>
+                            
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label for="loginUsername" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="loginUsername" required 
+                                           placeholder="Digite seu username">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="loginPassword" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="loginPassword" required 
+                                           placeholder="Digite sua senha">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 mb-3">
+                                    <span id="loginBtnText">Entrar</span>
+                                    <div id="loginLoading" class="spinner-border spinner-border-sm" role="status" style="display: none;">
+                                        <span class="visually-hidden">Carregando...</span>
+                                    </div>
+                                </button>
+                            </form>
+                            
+                            <div class="text-center">
+                                <small class="text-muted">
+                                    Não tem conta? 
+                                    <a href="#" class="text-decoration-none" onclick="showRegisterForm()">Cadastre-se aqui</a>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal (inicialmente oculto) -->
+    <div id="mainContent">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    🎓 Sistema Acadêmico
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                            👤 <span id="currentUser">Usuário</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><span class="dropdown-item-text"><small>Logado como: <strong id="userEmail"></strong></small></span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">🚪 Sair</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mt-4">
+            <h1 class="text-center mb-4">Gestão Acadêmica</h1>
+            
+            <!-- Cards de Navegação -->
+            <div class="row mb-4">
+                <div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">👨‍🎓 Alunos</h5>
+                            <button class="btn btn-primary btn-sm" onclick="carregarAlunos()">Listar</button>
+                            <button class="btn btn-success btn-sm mt-1" onclick="abrirModalAluno()">Novo</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">👨‍🏫 Professores</h5>
+                            <button class="btn btn-primary btn-sm" onclick="carregarProfessores()">Listar</button>
+                            <button class="btn btn-success btn-sm mt-1" onclick="abrirModalProfessor()">Novo</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">📚 Disciplinas</h5>
+                            <button class="btn btn-primary btn-sm" onclick="carregarDisciplinas()">Listar</button>
+                            <button class="btn btn-success btn-sm mt-1" onclick="abrirModalDisciplina()">Nova</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">🏫 Turmas</h5>
+                            <button class="btn btn-primary btn-sm" onclick="carregarTurmas()">Listar</button>
+                            <button class="btn btn-success btn-sm mt-1" onclick="abrirModalTurma()">Nova</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">📝 Notas</h5>
+                            <button class="btn btn-primary btn-sm" onclick="carregarNotas()">Listar</button>
+                            <button class="btn btn-success btn-sm mt-1" onclick="abrirModalNota()">Nova</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">🎒 Matrículas</h5>
+                            <button class="btn btn-primary btn-sm" onclick="carregarMatriculas()">Listar</button>
+                            <button class="btn btn-success btn-sm mt-1" onclick="abrirModalMatricula()">Nova</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Resultados -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0" id="titulo-tabela">Dados do Sistema</h4>
+                    <span id="contador-registros" class="badge bg-secondary">0 registros</span>
+                </div>
+                <div class="card-body">
+                    <!-- Mensagens -->
+                    <div id="mensagem-erro" class="error-message" style="display: none;"></div>
+                    <div id="mensagem-sucesso" class="success-message" style="display: none;"></div>
+                    
+                    <!-- Loading -->
+                    <div id="loading" class="loading" style="display: none;">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Carregando dados...</p>
+                    </div>
+
+                    <!-- Tabela de Resultados -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead id="tabela-cabecalho">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Informações</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-corpo">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">
+                                        Selecione uma opção acima para carregar os dados
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Login -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Conteúdo do login será movido aqui se necessário -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Nosso Script -->
+    <script src="script.js"></script>
+</body>
+</html>
